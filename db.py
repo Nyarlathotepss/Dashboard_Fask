@@ -3,6 +3,7 @@ from flask import g
 
 
 def get_conn():
+    """conn to database"""
     if 'conn' not in g:
         g.conn = mysql.connector.connect(host='localhost', database='cefim_datawarehouse', user='root', password='Masterball41')
     return g.conn
