@@ -5,7 +5,6 @@ from db import init_app, get_conn
 app = Flask(__name__)
 init_app(app)
 
-
 @app.route('/api/<int:id>', methods=['GET', 'DELETE', 'PUT'])
 def api_get_delete_and_put(id):
     """url qui permet de modifier, afficher ou supprimer une ligne de la table patient"""
@@ -65,6 +64,7 @@ def api_create():
         return "Bravo."
 
 
+
 @app.route('/api/sejours', methods=['GET'])
 def affiche_sejours():
     """ url qui permet d'afficher toute la table séjour """
@@ -78,3 +78,4 @@ def affiche_sejours():
 
 if __name__ == '__main__':
     app.run()
+# commentaire test git
