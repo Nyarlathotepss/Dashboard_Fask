@@ -11,7 +11,7 @@
 <ol>
 	<li> Cloner le projet GIT en local :  </li>
 	<li> Importer le projet sur votre IDE  </li>
-	<li> Executer la commande suivante: pip install -r requirements.txt
+	<li> Executer la commande suivante: "pip install -r requirements.txt"
 	<br> Elle va installer toutes les bibliothèques nécessaires
 	</li>
 	<li> Dans le fichier db.py préciser les informations liées a votre bdd.
