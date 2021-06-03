@@ -5,18 +5,72 @@
 {% endblock %}
 
 {% block date_min %}
-    <input type="datetime-local">
+    <br>
+    <br>
+    <label for="date_min">Date minimale:</label>
+    <br>
+    <input type="date" id="date_min" value="1961-04-07"
+           min="1961-04-07" max="2018-12-29">
 {% endblock %}
 
 {% block date_max %}
-{% endblock %}
-
-{% block nb_sejour %}
+    <br>
+    <br>
+    <label for="date_max">Date maximale:</label>
+    <br>
+    <input type="date" id="date_max" value="2018-12-29"
+           min="1961-04-07" max="2018-12-29">
 {% endblock %}
 
 {% block color %}
+    <br>
+    <br>
+    <label for="option">Option</label>
+    <br>
+    <select name="option" id="option">
+        <option value="">--Choisir une option--</option>
+        {% for option in liste.options %}
+                <option value="{{ option.value }}">{{ option.label}}</option>
+        {% endfor %}
+    </select>
+{% endblock %}
+
+{% block button %}
+    <br>
+    <br>
+    <button onclick="envoyer()" class="btn btn-warning"> Envoyer </button>
 {% endblock %}
 
 {% block graphique %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script>
+        let figure = document.getElementById('figure');
+
+        function envoyer()
+        {
+            let date_min = document.getElementById('date_min').value;
+            let date_max = document.getElementById('date_max').value;
+            let option = document.getElementById('option').value;
+
+          let data = {
+            "min": date_min,
+            "max": date_max,
+            "option": option
+          };
+          let json = JSON.stringify(data);
+
+          let request = new XMLHttpRequest();
+          request.open("POST", "/recup_variables", true);
+          request.setRequestHeader("Content-Type", "application/json");
+          request.onreadystatechange = function() {
+              if(this.readyState == 4) {
+                  let response = JSON.parse(this.responseText);
+                  Plotly.newPlot(figure, response);
+              }
+          };
+          request.send(json);
+        };
+        Plotly.newPlot(figure, {{liste.fig_json|safe}})
+    </script>
 {% endblock %}

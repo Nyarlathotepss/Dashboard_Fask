@@ -1,9 +1,36 @@
 from flask import Flask, render_template, request, jsonify
-import plotly.express as px
-from plotly.io import to_json
 from db import init_app, get_conn
+from graph_plotly import graphique
+
 app = Flask(__name__)
 init_app(app)
+
+@app.route('/recup_variables', methods=['POST'])
+def recup_variables():
+    """ recuperation des variables date_min et date_max, et couleur """
+    dateMin = request.json['min']  # format date yyyy-mm-dd
+    dateMax = request.json['max']  # format date yyyy-mm-dd
+    variable = request.json['option']  # type string, a choisir parmis une liste
+    graph = graphique(dateMin, dateMax, variable)
+    return graph
+
+
+@app.route('/variables', methods=['GET'])
+def liste_variables_couleurs():
+    """ liste des variables possibles """
+    graph_base = graphique('1961-04-07', '2018-12-29')
+    liste_variables = {"options":
+                            [
+                            {"value": "sexe", "label": "sexe "},
+                            {"value": "statut_vital", "label":  "Statut Vital"},
+                            {"value": "pole_sortie", "label": "Pole de Sortie"},
+                            {"value": "patient_id", "label": "l'ID du Patient"},
+                            {"value": "mode_sortie", "label": "Mode de Sortie"}
+                            ],
+                        "fig_json": graph_base
+                        }
+    return render_template("dashboard.html", liste=liste_variables, json=graph_base)
+
 
 @app.route('/api/<int:id>', methods=['GET', 'DELETE', 'PUT'])
 def api_get_delete_and_put(id):
