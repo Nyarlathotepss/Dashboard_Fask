@@ -2,7 +2,7 @@ import mysql.connector
 from flask import g
 
 my_host = 'localhost'
-my_database = 'cefim_datawarehouse'
+my_database = 'cefim'
 my_user = 'root'
 my_password = 'root'
 
@@ -10,7 +10,7 @@ my_password = 'root'
 def get_conn():
     """conn to database"""
     if 'conn' not in g:
-        g.conn = mysql.connector.connect(my_host, my_database, my_user, my_password)
+        g.conn = mysql.connector.connect(host=my_host, database=my_database, user=my_user, password=my_password)
     return g.conn
 
 

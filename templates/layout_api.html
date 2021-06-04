@@ -12,17 +12,28 @@
 
 <body>
 
-    {% block method %}
-    {% endblock %}
+<div class="container">
+    <div class="row">
+        <div class="col" id="menu_select_method">
+        {% block method %}
+        {% endblock %}
+        </div>
 
-    {% block parameter %}
-    {% endblock %}
+        <div class="col" id="method_parameters">
+        {% block parameter %}
+        {% endblock %}
+        </div>
 
-    {% block display %}
-    {% endblock %}
+        <div class="col">
+        {% block display %}
+        {% endblock %}
+        </div>
 
-    {% block script %}
-    {% endblock %}
+        {% block script %}
+        {% endblock %}
+
+    </div>
+</div>
 
 </body>
 

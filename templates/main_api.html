@@ -6,23 +6,23 @@
 {% endblock %}
 
 <body>
+
     {% block method %}
-
-    <select name="method" id="method" onchange="select_method()">
-        <option value=""> Choisissez votre methode: </option>
-        <option value="GET"> GET </option>
-        <option value="PUT"> PUT </option>
-        <option value="POST"> POST </option>
-        <option value="DELETE"> DELETE </option>
-    </select>
-
+    <div class="col" id="method_block">
+        <select name="method" id="method" onchange="select_method()">
+            <option value=""> Choisissez votre methode: </option>
+            <option value="GET"> GET </option>
+            <option value="PUT"> PUT </option>
+            <option value="POST"> POST </option>
+            <option value="DELETE"> DELETE </option>
+        </select>
+    </div>
     {% endblock %}
 
     {% block parameter %}
         <div id="parameter_get" class="parameter">
             <input type="text" id="get_id">
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
-
         </div>
 
         <div id="parameter_put" class="parameter">
@@ -43,7 +43,6 @@
             <br>
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
         </div>
-
         <div id="parameter_post" class="parameter">
             <input type="text" id="post_patient_id">
             <input type="text" id="post_date_entree">
@@ -51,7 +50,6 @@
             <input type="text" id="post_mode_sortie">
             <button type="button" class="btn btn-info">Envoyer</button>
         </div>
-
         <div id="parameter_delete" class="parameter">
             <input type="text" id="delete_id">
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
@@ -59,7 +57,7 @@
     {% endblock %}
 
     {% block display %}
-        <div id="display"> </div>
+        <div class="col" id="display"> </div>
     {% endblock %}
 
     {% block script %}
@@ -162,6 +160,6 @@
     </script>
     {% endblock %}
 
-
+</div>
+</div>
 </body>
-</html>

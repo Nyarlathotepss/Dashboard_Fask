@@ -25,3 +25,21 @@
     max-height: 100%;
     max-width: 100%;
 }
+
+#menu_select_method {
+    background-color: rgba(96, 116, 231 , 0.5);
+    height: 100%;
+    border: 1px solid;
+    border-radius: 25px;
+    box-shadow: 0 1px;
+    margin-top: 15px;
+}
+
+#method_parameters {
+    background-color: rgba(96, 116, 231 , 0.5);
+    height: 100%;
+    border: 1px solid;
+    border-radius: 25px;
+    box-shadow: 0 1px;
+    margin-top: 15px;
+}
