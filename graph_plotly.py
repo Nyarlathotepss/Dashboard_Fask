@@ -60,7 +60,7 @@ def gener_data(variable, d_min, d_max, T1, T2=None):
 data2, nb_na = gener_data('statut_vital','2005-05-17', '2016-01-27', sejour, patient)
 
 
-
+#######################################################################
 #################### fonction generation du graphique ##################
 
 def gener_histogram(data, nb_na, couleur=None):
