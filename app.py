@@ -83,9 +83,9 @@ def api_create():
 @app.route('/recup_variables', methods=['POST'])
 def recup_variables():
     """ recuperation des variables date_min et date_max, et couleur """
-    dateMin = request.json['date_Min']  # format date yyyy-mm-dd
-    dateMax = request.json['date_Max']  # format date yyyy-mm-dd
-    variable = request.json['variable_couleur']  # type string, a choisir parmis une liste
+    dateMin = request.json['min']  # format date yyyy-mm-dd
+    dateMax = request.json['max']  # format date yyyy-mm-dd
+    variable = request.json['option']  # type string, a choisir parmis une liste
     graph = graphique(dateMin, dateMax, variable)
     return graph
 
