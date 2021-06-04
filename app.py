@@ -1,39 +1,23 @@
 from flask import Flask, render_template, request, jsonify
+import plotly.express as px
+from plotly.io import to_json
 from db import init_app, get_conn, collection
 from graph_plotly import graphique
+
 app = Flask(__name__)
 init_app(app)
-
-
-@app.route('/api/post', methods=['POST'])
-def api_create():
-    """ url qui permet d'ajouter une ligne à la table séjour  """
-    if request.method == 'POST':
-        con = get_conn()
-        cur = con.cursor()
-        cur.execute("INSERT INTO sejour (patient_id, date_entree, date_sortie, mode_sortie )"
-                    "VALUES (%s, %s, %s, %s)",
-                    (
-        request.json["patient_id"],
-        request.json["date_entree"],
-        request.json["date_sortie"],
-        request.json["mode_sortie"])
-                    )
-        con.commit()
-        cur.close()
-        return "Bravo, la ligne a été ajoutée"
-
 
 @app.route('/api')
 def api():
         return render_template("main_api.html")
 
-
 @app.route('/api/sejours/', methods=['GET'])
 def affiche_sejours():
     """ url qui permet d'afficher toute la table séjour """
     sejours = collection("SELECT * FROM sejour")
+    #return render_template('show_sejour.html', sejours=sejours)
     return jsonify(sejours)
+
 
 
 @app.route('/api/sejours/<int:id>', methods=['GET', 'PUT', 'DELETE'])
@@ -68,13 +52,40 @@ def affiche_sejours_id(id):
         requete = collection("SELECT * FROM sejour WHERE id = %s", (id,))
         return jsonify(requete)
 
+@app.route('/api/post/', methods=['POST'])
+def api_create():
+    """ url qui permet d'ajouter une ligne à la table séjour  """
+    if request.method == 'POST':
+        con = get_conn()
+        cur = con.cursor()
+        cur.execute("INSERT INTO sejour (patient_id, date_entree, date_sortie, mode_sortie )"
+                    "VALUES (%s, %s, %s, %s)",
+                    (
+        request.json["post_patient_id"],
+        request.json["post_date_entree"],
+        request.json["post_date_sortie"],
+        request.json["post_mode_sortie"])
+                    )
+        con.commit()
+        cur.close()
+        ligne_ajout = collection("SELECT * FROM sejour order by ID DESC LIMIT 1")
+        return jsonify(ligne_ajout)
+
+
+
+
+
+
+
+
+
 
 @app.route('/recup_variables', methods=['POST'])
 def recup_variables():
     """ recuperation des variables date_min et date_max, et couleur """
-    dateMin = request.json['min']  # format date yyyy-mm-dd
-    dateMax = request.json['max']  # format date yyyy-mm-dd
-    variable = request.json['option']  # type string, a choisir parmis une liste
+    dateMin = request.json['date_Min']  # format date yyyy-mm-dd
+    dateMax = request.json['date_Max']  # format date yyyy-mm-dd
+    variable = request.json['variable_couleur']  # type string, a choisir parmis une liste
     graph = graphique(dateMin, dateMax, variable)
     return graph
 

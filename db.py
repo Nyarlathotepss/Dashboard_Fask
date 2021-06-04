@@ -1,15 +1,13 @@
 import mysql.connector
 from flask import g
 
-my_host = 'localhost'
-my_database = 'cefim'
-my_user = 'root'
-my_password = 'root'
-
-
 def get_conn():
     """conn to database"""
     if 'conn' not in g:
+        my_host = 'localhost'
+        my_database = 'cefim_datawarehouse'
+        my_user = 'root'
+        my_password = 'Masterball41'
         g.conn = mysql.connector.connect(host=my_host, database=my_database, user=my_user, password=my_password)
     return g.conn
 
@@ -30,7 +28,4 @@ def collection(sql, values=()):
     row_headers = [x[0] for x in cur.description]
     rows = cur.fetchall()
     cur.close()
-
     return [dict(zip(row_headers, row)) for row in rows]
-
-

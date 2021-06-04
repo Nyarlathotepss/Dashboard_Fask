@@ -6,23 +6,24 @@
 {% endblock %}
 
 <body>
-
     {% block method %}
-    <div class="col" id="method_block">
-        <select name="method" id="method" onchange="select_method()">
-            <option value=""> Choisissez votre methode: </option>
-            <option value="GET"> GET </option>
-            <option value="PUT"> PUT </option>
-            <option value="POST"> POST </option>
-            <option value="DELETE"> DELETE </option>
-        </select>
-    </div>
+
+    <select name="method" id="method" onchange="select_method()">
+        <option value=""> Choisissez votre methode: </option>
+        <option value="GET"> GET </option>
+        <option value="PUT"> PUT </option>
+        <option value="POST"> POST </option>
+        <option value="DELETE"> DELETE </option>
+    </select>
+
     {% endblock %}
 
     {% block parameter %}
         <div id="parameter_get" class="parameter">
+            <label for="post_patient_id">L'ID du patient à afficher</label>
             <input type="text" id="get_id">
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
+
         </div>
 
         <div id="parameter_put" class="parameter">
@@ -43,21 +44,32 @@
             <br>
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
         </div>
+
         <div id="parameter_post" class="parameter">
+            <label for="post_patient_id"> ID du patient : </label>
             <input type="text" id="post_patient_id">
+            <br>
+            <label for="put_date_entree"> date d'entrée : </label>
             <input type="text" id="post_date_entree">
+            <br>
+            <label for="post_date_sortie"> date de sortie : </label>
             <input type="text" id="post_date_sortie">
+            <br>
+            <label for="post_mode_sortie"> mode de sortie : </label>
             <input type="text" id="post_mode_sortie">
-            <button type="button" class="btn btn-info">Envoyer</button>
+            <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
         </div>
+
+
         <div id="parameter_delete" class="parameter">
+            <label for="post_patient_id"> L'ID du patient à supprimer :</label>
             <input type="text" id="delete_id">
             <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
         </div>
     {% endblock %}
 
     {% block display %}
-        <div class="col" id="display"> </div>
+        <div id="display"> </div>
     {% endblock %}
 
     {% block script %}
@@ -75,7 +87,7 @@
                         }
                     if (method == 'GET') {
                         let form = document.getElementById('parameter_get');
-                        form.style.display = 'block'
+                        form.style.display = 'block' ;
                         }
                     if (method == 'PUT') {
                         let form = document.getElementById('parameter_put');
@@ -143,6 +155,11 @@
                                 let define_url = dict[method] + put_id;
                                 request.open(method,define_url, true);}
 
+                             if (method == 'POST') {
+                                let define_url = dict[method];
+                                request.open(method,define_url, true);}
+
+
                           request.setRequestHeader("Content-Type", "application/json");
                           request.onreadystatechange = function() {
                               if(this.readyState == 4) {
@@ -160,6 +177,6 @@
     </script>
     {% endblock %}
 
-</div>
-</div>
+
 </body>
+</html>
