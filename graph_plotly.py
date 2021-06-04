@@ -1,7 +1,6 @@
 ############################# imports #####################################
 
 import pandas as pd
-import numpy as np
 import mysql.connector as sql
 import plotly.express as px
 from plotly.io import to_json
@@ -14,7 +13,7 @@ def gener_sql_conn(hote, base, utilisateur, mot_passe):
 
 #################### Connection et import des tables ########################
 
-conn = gener_sql_conn('localhost', 'test_pandas', 'root', 'Melusine@@37')
+conn = gener_sql_conn('localhost', 'cefim', 'root', 'root')
 
 sejour = pd.read_sql('SELECT * FROM sejour', conn)
 patient = pd.read_sql('SELECT * FROM patient', conn)

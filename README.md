@@ -7,6 +7,8 @@
 </p>
  
 <h2> Mise en place du projet </h2>
+
+<p> Le projet a été développé sur Windows 10 sur IDE pycharm
  
 <ol>
 	<li> Cloner le projet GIT en local :  </li>
@@ -15,6 +17,14 @@
 	<br> Elle va installer toutes les bibliothèques nécessaires
 	</li>
 	<li> Dans le fichier db.py préciser les informations liées a votre bdd.
-	<li> Démarrer le serveur Flask > Executer la fichier app  </li>
-	<li> Via votre navigateur accéder à la page suivante :  </li>
+	<li> Dans le fichier graph_plotly.py mettre a jour les info de connexion à la bdd (ligne 17)
+	<li> Démarrer le serveur Flask > Executer la fichier app.py  </li>
 </ol>
+
+<h2>Le Dashboard</h2>
+
+Accéder à l'URL : http://127.0.0.1:5000/variables
+
+<h2>L' API</h2>
+
+Accéder à l'URL : http://127.0.0.1:5000/api

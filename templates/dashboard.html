@@ -43,7 +43,6 @@
 
 {% block graphique %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
     <script>
         let figure = document.getElementById('figure');
 
@@ -68,7 +67,8 @@
                   let response = JSON.parse(this.responseText);
                   Plotly.newPlot(figure, response);
               }
-          };
+              }
+
           request.send(json);
         };
         Plotly.newPlot(figure, {{liste.fig_json|safe}})
