@@ -1,35 +1,115 @@
+############################# imports #####################################
+
 import pandas as pd
 import numpy as np
 import mysql.connector as sql
 import plotly.express as px
 from plotly.io import to_json
 
+################### fonction generation de la connection sql ##################
 
-########################### fonction generation du graphique ##################
+def gener_sql_conn(hote, base, utilisateur, mot_passe):
+    conn = sql.connect(host=hote, database=base, user=utilisateur, password=mot_passe)
+    return conn
 
-def gener_histogram(data, couleur=None):
-    ''' initialisation de la variable pour définir le barmode '''
+#################### Connection et import des tables ########################
+
+conn = gener_sql_conn('localhost', 'test_pandas', 'root', 'Melusine@@37')
+
+sejour = pd.read_sql('SELECT * FROM sejour', conn)
+patient = pd.read_sql('SELECT * FROM patient', conn)
+mouvement = pd.read_sql('SELECT * FROM mouvement', conn)
+structure = pd.read_sql('SELECT * FROM structure', conn)
+
+
+#################### fonction generation du dataframe ##################
+
+def gener_data(variable, d_min, d_max, T1, T2=None):
+    if variable is not None :
+        if T2 is not None :
+            data=(
+                T1
+                .merge(T2, how='inner', left_on='patient_id',right_on='id')
+                .loc[:,['id_x',variable, 'date_entree','date_sortie']]
+                .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
+                )
+            nb_na = data[variable].isnull().sum() # Nombre de val manquantes
+            data = data[data[variable].notna()]
+        else :
+            data=(
+                T1
+                .loc[:,['id',variable, 'date_entree','date_sortie']]
+                .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
+                    )
+            nb_na = data[variable].isnull().sum()  # Nombre de val manquantes
+            data = data[data[variable].notna()]
+    else :
+        data=(
+            T1
+            .loc[:,['id','date_entree','date_sortie']]
+            .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
+              )
+        nb_na = 0 # Nombre de val manquantes
+
+    data["delta"]=(data['date_sortie'] - data['date_entree']).dt.days
+    nb_na = nb_na + data["delta"].isna().sum()
+    data = data.sort_values(by=["delta"])
+    data = data[data["delta"].notna()]
+    return data, nb_na
+
+data2, nb_na = gener_data('statut_vital','2005-05-17', '2016-01-27', sejour, patient)
+
+
+
+#################### fonction generation du graphique ##################
+
+def gener_histogram(data, nb_na, couleur=None):
+    ''' initialisation de la variable pour définir le barmode + on fixe les couleurs '''
     if couleur in ('sexe', 'statut_vital'):
         forma = 'group'
+        if couleur == 'sexe':
+            color_discrete_map = {'F': 'rgb(275,75,78)', 'M': 'rgb(103,22,223)'}
+        else :
+            color_discrete_map = {'V': 'rgb(56,199,107)', 'D': 'rgb(214,199,127)'}
     else:
         forma='relative'
+        color_discrete_map = {'Chirurgie Thoracique': 'rgb(275,75,78)',
+                                  'Endocrinologie': 'rgb(255, 19, 171)',
+                                  'Dermatologie': 'rgb(204, 99, 25)',
+                                  'Urgences': 'rgb(254,222,0)',
+                                  'Pneumologie': 'rgb(52,22,233)',
+                                  'Ophtalmologie': 'rgb(152,100,223)',
+                                  'Médecine Interne': 'rgb(32,22,150)',
+                                  'Orthopédie': 'rgb(120,22,223)',
+                                  'Maladies Infectieuses et Tropicales': 'rgb(103,27,123)',
+                                  'Chirurgie Maxillo-Faciale': 'rgb(45,154,69)',
+                                  'Gériatrie': 'rgb(13,222,23)',
+                                  'Neurologie': 'rgb(3,47,29)',
+                                  'Chirurgie Viscérale': 'rgb(45,212,223)',
+                                  'Oto-Rhino-Laryngologie': 'rgb(255, 145, 117)',
+                                  'Néphrologie': 'rgb(245,85,213)',
+                                  'Hépato-Gastro-Entérologie': 'rgb(204, 173, 255)'
+                             }
 
     ''' génération de l'histogramme '''
     fig = px.histogram(
                     data,
                     x="delta",
                     color=couleur,
+                    color_discrete_map=color_discrete_map,
                     labels={
-                            "delta": "Durée du séjour (jours)"},
+                            "delta": "Durée du séjour (jours)",
+                            "statut_vital":"Statut vital du patient",
+                            "patient_id": "ID du patient",
+                            "pole_sortie":"Pôle de sortie",
+                            "pole_entree":"Pôle d'entrée",
+                            "mode_sortie":"Mode de sortie",
+                            "sexe":"Sexe"},
                     barmode= forma,
                     nbins = int((data.delta.max()- data.delta.min()) + 1))
 
     ''' update des traces pour afficher le hover '''
-   # if couleur is not None:
-    #  #  fig.update_traces(customdata=data[[couleur]],
-    # #                     hovertemplate= "<b>     %{customdata}</b>     " + "<br>Durée du séjour : %{x}" +
-     #                     "<br>Effectif : %{y}" +"<extra></extra>") #
-    #else:
+
     fig.update_traces(text=couleur,
                           hovertemplate= "<br>Durée du séjour : %{x}" +
                           "<br>Effectif : %{y}" +"<extra></extra>") #
@@ -54,60 +134,33 @@ def gener_histogram(data, couleur=None):
                                 font_size=16,
                                 font_family="Rockwell"
                                         ),
-                         plot_bgcolor="#FFF")
+                        plot_bgcolor="#FFF")
+
+    ''' update du layout : ajout d'une ligne de txt pour compter nb val anormales (NA, None) '''
+
+    if nb_na > 0 :
+        fig.update_layout(margin_b=100,
+                             annotations = [dict(xref='paper',
+                                            yref='paper',
+                                            x=0.5, y=-0.25,
+                                            showarrow=False,
+                                            text = "Nombre de séjours total : " + str(len(data)) +
+                                           " || " + str(nb_na) + " lignes ont été enlevées à cause de valeurs incorrecte")]
+                         )
+    else :
+        fig.update_layout(margin_b=100,
+                             annotations = [dict(xref='paper',
+                                            yref='paper',
+                                            x=0.5, y=-0.25,
+                                            showarrow=False,
+                                            text = "Nombre de séjours total : " +
+                                                 str(len(data)))])
+
     return fig
 
 
 
-######################## fonction generation de la connection sql ##################
-
-def gener_sql_conn(hote, base, utilisateur, mot_passe):
-    conn = sql.connect(host=hote, database=base, user=utilisateur, password=mot_passe)
-    return conn
-
-
-######################### fonction generation du dataframe #######################
-
-def gener_data(variable, d_min, d_max, T1, T2=None):
-    if variable is not None :
-        if T2 is not None :
-            data=(
-                T1
-                .merge(T2, how='inner', left_on='patient_id',right_on='id')
-                .loc[:,['id_x',variable, 'date_entree','date_sortie']]
-                .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
-                )
-            data = data[data[variable].notna()]
-        else :
-            data=(
-                T1
-                .loc[:,['id',variable, 'date_entree','date_sortie']]
-                .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
-                    )
-            data = data[data[variable].notna()]
-    else :
-        data=(
-            T1
-            .loc[:,['id','date_entree','date_sortie']]
-            .query('date_entree >= @d_min & date_entree <= @d_max') # filtre sur date_entrée
-              )
-
-    data["delta"]=(data['date_sortie'] - data['date_entree']).dt.days
-    data = data.sort_values(by=["delta"])
-    return data
-
-
-############################" import des tables necessaires #########################################
-
-conn = gener_sql_conn('localhost', 'test_pandas', 'root', 'Melusine@@37')
-
-sejour = pd.read_sql('SELECT * FROM sejour', conn)
-patient = pd.read_sql('SELECT * FROM patient', conn)
-mouvement = pd.read_sql('SELECT * FROM mouvement', conn)
-structure = pd.read_sql('SELECT * FROM structure', conn)
-
-
-#########################" Fonction pour retourner le json "##########################################
+# Definition de la fonction pour le traitememnt Pandas et l'affichage du graphique Plotly
 
 def graphique (dateMin, dateMax, variable=None):
         """ dateMin = date d'entrée minimale autorisé """
@@ -115,6 +168,7 @@ def graphique (dateMin, dateMax, variable=None):
         """ variable = catégorie pour les couleurs du graphique """
 
         ''' Génération du graphique en fonction de ce qui est entré comme "variable" '''
+
         ''' Route si on entre quelque chose comme variable '''
         ''' Le dataframe "data" sera different selon la valeur de "variable" '''
 
@@ -122,7 +176,7 @@ def graphique (dateMin, dateMax, variable=None):
             if variable in ('sexe','statut_vital'): # cas si variable dans la table patient
                 ''' Route si la variable est "sexe" ou "statut_vital" '''
 
-                data = gener_data(variable, dateMin, dateMax, sejour, patient)
+                data, nb_na = gener_data(variable, dateMin, dateMax, sejour, patient)
 
             elif variable in ('pole_entree','pole_sortie') :
                 ''' Route si la variable est "pole_entree" ou "pole_sortie" '''
@@ -143,30 +197,29 @@ def graphique (dateMin, dateMax, variable=None):
                             pole_sortie = ('nom', 'last')
                         )
                         .reset_index(drop=False)
+                        .query('date_entree >= @dateMin & date_entree <= @dateMax') # filtre sur date_entrée
                         )
                 data["delta"]=(data['date_sortie'] - data['date_entree']).dt.days
                 data = data.sort_values(by=["delta"])
+                nb_na = 0
             else :
                 ''' Route si la variable est "patient_id" ou "mode_sortie" '''
 
-                data = gener_data(variable, dateMin, dateMax, sejour)
+                data, nb_na = gener_data(variable, dateMin, dateMax, sejour)
 
             ''' Creation du graphique avec le dataframe cree précedemment '''
 
-            fig = gener_histogram(data, variable)
-            #fig.show()
+            fig = gener_histogram(data, nb_na, variable)
             return to_json(fig)
+
         else :
             '''Route si on ne rentre pas de variable de coloration '''
 
-            data = gener_data(variable, dateMin, dateMax, sejour)
+            data, nb_na = gener_data(variable, dateMin, dateMax, sejour)
 
-            ''' Creation du graphique avec le dataframe cree précedemment '''
+            ''' Creation du graphique avec le dataframe généré précedemment '''
 
-            fig = gener_histogram(data)
-            #fig.show()
+            fig = gener_histogram(data, nb_na)
             return to_json(fig)
 
 
-test = graphique('2005-05-17', '2016-01-27', 'pole_sortie')
-print(test)
