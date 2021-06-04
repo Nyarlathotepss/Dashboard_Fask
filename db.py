@@ -23,4 +23,14 @@ def close_conn(e=None):
 def init_app(app):
     app.teardown_appcontext(close_conn)
 
+def collection(sql, values=()):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute(sql, values)
+    row_headers = [x[0] for x in cur.description]
+    rows = cur.fetchall()
+    cur.close()
+
+    return [dict(zip(row_headers, row)) for row in rows]
+
 
