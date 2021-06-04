@@ -1,0 +1,167 @@
+{% extends "layout_api.html" %}
+{% block head %}
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.js"></script>
+
+{% endblock %}
+
+<body>
+    {% block method %}
+
+    <select name="method" id="method" onchange="select_method()">
+        <option value=""> Choisissez votre methode: </option>
+        <option value="GET"> GET </option>
+        <option value="PUT"> PUT </option>
+        <option value="POST"> POST </option>
+        <option value="DELETE"> DELETE </option>
+    </select>
+
+    {% endblock %}
+
+    {% block parameter %}
+        <div id="parameter_get" class="parameter">
+            <input type="text" id="get_id">
+            <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
+
+        </div>
+
+        <div id="parameter_put" class="parameter">
+            <label for="put_id">ID</label>
+            <input type="text" id="put_id">
+            <br>
+            <label for="put_patient_id">l'id du patient</label>
+            <input type="text" id="put_patient_id">
+            <br>
+            <label for=put_date_entree>date_ d'entrée</label>
+            <input type="text" id="put_date_entree">
+            <br>
+            <label for="put_date_sortie">date de sortie</label>
+            <input type="text" id="put_date_sortie">
+            <br>
+            <label for="put_mode_sortie">Mode de sortie</label>
+            <input type="text" id="put_mode_sortie">
+            <br>
+            <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
+        </div>
+
+        <div id="parameter_post" class="parameter">
+            <input type="text" id="post_patient_id">
+            <input type="text" id="post_date_entree">
+            <input type="text" id="post_date_sortie">
+            <input type="text" id="post_mode_sortie">
+            <button type="button" class="btn btn-info">Envoyer</button>
+        </div>
+
+        <div id="parameter_delete" class="parameter">
+            <input type="text" id="delete_id">
+            <button type="button" class="btn btn-info" onclick="envoyer()">Envoyer</button>
+        </div>
+    {% endblock %}
+
+    {% block display %}
+        <div id="display"> </div>
+    {% endblock %}
+
+    {% block script %}
+    <script>
+        function select_method()
+        {
+                let method = document.getElementById('method').value;
+                    var all = document.getElementsByClassName('parameter');
+                    for (var i = 0; i < all.length; i++) {
+                    all[i].style.display = 'none';
+                    }
+                    if (method == 'POST') {
+                        let form = document.getElementById('parameter_post');
+                        form.style.display = 'block';
+                        }
+                    if (method == 'GET') {
+                        let form = document.getElementById('parameter_get');
+                        form.style.display = 'block'
+                        }
+                    if (method == 'PUT') {
+                        let form = document.getElementById('parameter_put');
+                        form.style.display = 'block';
+                        }
+                    if (method == 'DELETE') {
+                        let form = document.getElementById('parameter_delete');
+                        form.style.display = 'block';
+                        }
+
+        };
+
+                let figure = document.getElementById('figure');
+                    function envoyer()
+                    {
+                        let method = document.getElementById('method').value;
+
+                        let post_patient_id = document.getElementById('post_patient_id').value;
+                        let post_date_entree = document.getElementById('post_date_entree').value;
+                        let post_date_sortie = document.getElementById('post_date_sortie').value;
+                        let post_mode_sortie = document.getElementById('post_mode_sortie').value;
+
+                        let put_patient_id = document.getElementById('put_patient_id').value;
+                        let put_date_entree = document.getElementById('put_date_entree').value;
+                        let put_date_sortie = document.getElementById('put_date_sortie').value;
+                        let put_mode_sortie = document.getElementById('put_mode_sortie').value;
+
+                        let delete_id = document.getElementById('delete_id').value;
+                        let get_id = document.getElementById('get_id').value;
+                        let put_id = document.getElementById('put_id').value;
+
+                          let data= { "post_patient_id" : post_patient_id,
+                                    "post_date_entree" : post_date_entree,
+                                    "post_date_sortie" : post_date_sortie,
+                                    "post_mode_sortie" : post_mode_sortie,
+
+                                    "put_patient_id" : put_patient_id,
+                                    "put_date_entree" : put_date_entree,
+                                    "put_date_sortie" : put_date_sortie,
+                                    "put_mode_sortie" : put_mode_sortie,
+                                    "put_id" : put_id,
+
+                                    "delete_id" : delete_id,
+                                    "get_id" : get_id,
+
+                          }
+
+                          let json = JSON.stringify(data);
+                          let request = new XMLHttpRequest();
+
+                          let dict= { "GET" : "/api/sejours/",
+                                      "POST" : "/api/post/",
+                                      "DELETE" : "/api/sejours/",
+                                      "PUT" : "/api/sejours/"
+                                     }
+                           if (method == 'GET'){
+                                let define_url = dict[method] + get_id;
+                                request.open(method,define_url, true);}
+
+                            if (method == 'DELETE') {
+                                let define_url = dict[method] + delete_id;
+                                request.open(method,define_url, true);}
+
+                             if (method == 'PUT') {
+                                let define_url = dict[method] + put_id;
+                                request.open(method,define_url, true);}
+
+                          request.setRequestHeader("Content-Type", "application/json");
+                          request.onreadystatechange = function() {
+                              if(this.readyState == 4) {
+                                    let response = this.responseText;
+                                    let location = document.getElementById('display');
+                                    location.innerHTML = response;
+                              }
+                      };
+                      if (method == 'GET' || method == 'DELETE') {
+                        request.send();
+                      }
+                      else {
+                         request.send(json);}
+                      };
+    </script>
+    {% endblock %}
+
+
+</body>
+</html>

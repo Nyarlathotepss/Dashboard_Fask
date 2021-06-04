@@ -1,3 +1,18 @@
+#parameter_get {
+    display: none;
+}
+
+#parameter_put {
+    display: none;
+}
+#parameter_post {
+    display: none;
+}
+
+#parameter_delete {
+    display: none;
+}
+
 #parametres {
     background-color: rgba(96, 116, 231 , 0.5);
     height: 500px;
@@ -5,7 +20,6 @@
     border-radius: 25px;
     box-shadow: 0 1px
 }
-
 #row_dash {
     margin-top: 15px;
     max-height: 100%;
